@@ -24,16 +24,10 @@ public class AuthController {
         if (authService.findByUserName(request.getUsername()) != null) {
             return ResponseEntity.badRequest().body("Username ถูกใช้ไปแล้ว");
         }
-//        String role = request.getRole().toUpperCase();
-//
-//        if (!role.equals("USER")) {
-//            return ResponseEntity.badRequest().body("Role ไม่ถูกต้อง ต้องเป็น USER");
-//        }
 
         User newUser = new User();
         newUser.setUsername(request.getUsername());
         newUser.setPassword(request.getPassword());
-//        newUser.setRole(request.getRole());
 
         authService.register(newUser);
 
