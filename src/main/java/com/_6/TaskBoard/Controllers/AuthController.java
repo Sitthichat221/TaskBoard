@@ -35,7 +35,7 @@ public class AuthController {
         newUser.setPassword(request.getPassword());
 //        newUser.setRole(request.getRole());
 
-        User savedUser = authService.register(newUser);
+        authService.register(newUser);
 
         return ResponseEntity.ok("Register สำเร็จ");
     }
