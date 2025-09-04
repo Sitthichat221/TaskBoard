@@ -3,7 +3,7 @@ package com._6.TaskBoard.Entity;
 import jakarta.persistence.*;
 
 @Entity
-@Table(name="user")
+@Table(name="task_user")
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
