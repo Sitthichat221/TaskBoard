@@ -19,10 +19,6 @@ services:
         fromDatabase:
           name: taskboard-db
           property: connectionString
-      - key: SPRING_DATASOURCE_URL
-        fromDatabase:
-          name: taskboard-db
-          property: connectionString
       - key: DATABASE_USERNAME
         fromDatabase:
           name: taskboard-db
