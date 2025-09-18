@@ -115,4 +115,27 @@ public class TaskService {
         throw new RuntimeException("Task not found");
     }
 
+    public Task updateTask(Integer taskId, TaskDTO taskDTO) {
+        Optional<Task> taskOptional = taskRepository.findById(taskId);
+        if (taskOptional.isEmpty()) {
+            throw new RuntimeException("Task not found");
+        }
+
+        Task task = taskOptional.get();
+
+        String currentUserEmail = SecurityContextHolder.getContext().getAuthentication().getName();
+        Integer userId = getUserIdFromEmail(currentUserEmail);
+
+        if (!task.getCreatedBy().getId().equals(userId)) {
+            throw new RuntimeException("You do not have permission to edit this task");
+        }
+
+        if (taskDTO.getTitle() != null) task.setTitle(taskDTO.getTitle());
+        if (taskDTO.getDescription() != null) task.setDescription(taskDTO.getDescription());
+        if (taskDTO.getStatus() != null) task.setStatus(taskDTO.getStatus());
+        if (taskDTO.getDueDate() != null) task.setDueDate(taskDTO.getDueDate());
+
+        return taskRepository.save(task);
+    }
+
 }

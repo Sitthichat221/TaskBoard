@@ -31,8 +31,10 @@ public class SecurityConfiguration {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.csrf().disable()
+                .cors()
+                .and()
                 .authorizeHttpRequests()
-                .requestMatchers("/auth/**", "/**").permitAll()
+                .requestMatchers("/auth/**").permitAll()
                 .anyRequest()
                 .authenticated()
                 .and()
@@ -49,7 +51,13 @@ public class SecurityConfiguration {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
 
-        configuration.setAllowedOrigins(List.of("http://localhost:5173"));
+        String frontendUrl = System.getenv("FRONTEND_URL");
+
+        if (frontendUrl != null && !frontendUrl.isBlank()) {
+            configuration.setAllowedOrigins(List.of(frontendUrl, "http://localhost:5173"));
+        } else {
+            configuration.setAllowedOriginPatterns(List.of("http://localhost:5173", "https://*.onrender.com"));
+        }
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("Authorization", "Content-Type"));
         configuration.setAllowCredentials(true);
