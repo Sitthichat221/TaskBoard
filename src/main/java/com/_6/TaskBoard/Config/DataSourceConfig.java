@@ -23,12 +23,10 @@ public class DataSourceConfig {
             // Use default local database
             jdbcUrl = "jdbc:postgresql://localhost:5432/taskboard?sslmode=require";
         } else {
-            // Ensure URL has jdbc: prefix
-            if (databaseUrl.startsWith("jdbc:")) {
-                jdbcUrl = databaseUrl;
-            } else {
-                jdbcUrl = "jdbc:" + databaseUrl;
-            }
+            // Remove jdbc: prefix if it exists, then add it back
+            String cleanUrl = databaseUrl.startsWith("jdbc:") ? 
+                databaseUrl.substring(5) : databaseUrl;
+            jdbcUrl = "jdbc:" + cleanUrl;
         }
         
         System.out.println("=== DATABASE CONFIGURATION ===");
