@@ -1,0 +1,43 @@
+services:
+  - type: web
+    name: taskboard-backend
+    env: docker
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    plan: free
+    region: singapore
+    branch: main
+    buildCommand: ""
+    startCommand: ""
+    healthCheckPath: /actuator/health
+    envVars:
+      - key: SPRING_PROFILES_ACTIVE
+        value: prod
+      - key: PORT
+        value: 8080
+      - key: DATABASE_URL
+        fromDatabase:
+          name: taskboard-db
+          property: connectionString
+      - key: DATABASE_USERNAME
+        fromDatabase:
+          name: taskboard-db
+          property: user
+      - key: DATABASE_PASSWORD
+        fromDatabase:
+          name: taskboard-db
+          property: password
+      - key: JWT_SECRET_KEY
+        generateValue: true
+      - key: JWT_EXPIRATION_TIME
+        value: 3600000
+      - key: CORS_ALLOWED_ORIGINS
+        value: https://your-frontend-domain.com
+      - key: HIBERNATE_DDL_AUTO
+        value: validate
+
+databases:
+  - name: taskboard-db
+    plan: free
+    databaseName: taskboard
+    user: taskboard_user

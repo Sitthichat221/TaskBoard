@@ -4,9 +4,13 @@ import com._6.TaskBoard.DTO.AssignTaskDTO;
 import com._6.TaskBoard.DTO.TaskDTO;
 import com._6.TaskBoard.Entity.Task;
 import com._6.TaskBoard.Services.TaskService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.sql.DataSource;
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.List;
 
 @RestController
@@ -61,6 +65,20 @@ public class TaskController {
         return ResponseEntity.ok(updatedTask);
     }
 
+    @Autowired
+    private DataSource dataSource;
+
+    @GetMapping("/test-db")
+    public ResponseEntity<String> testDatabaseConnection() {
+        try (Connection connection = dataSource.getConnection()) {
+            String dbName = connection.getCatalog();
+            String dbProduct = connection.getMetaData().getDatabaseProductName();
+            String dbVersion = connection.getMetaData().getDatabaseProductVersion();
+            return ResponseEntity.ok("Database connected successfully! DB: " + dbName + ", Product: " + dbProduct + ", Version: " + dbVersion);
+        } catch (SQLException e) {
+            return ResponseEntity.status(500).body("Database connection failed: " + e.getMessage());
+        }
+    }
 
 }
 
