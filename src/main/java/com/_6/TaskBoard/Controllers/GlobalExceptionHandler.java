@@ -2,11 +2,14 @@ package com._6.TaskBoard.Controllers;
 
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.security.SignatureException;
+import jakarta.validation.ConstraintViolationException;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ProblemDetail;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.AccountStatusException;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -47,6 +50,32 @@ public class GlobalExceptionHandler {
         }
 
         if (errorDetail == null) {
+            if (exception instanceof MethodArgumentNotValidException manv) {
+                errorDetail = ProblemDetail.forStatusAndDetail(HttpStatusCode.valueOf(400), "Validation failed");
+                errorDetail.setProperty("errors", manv.getBindingResult().getFieldErrors().stream()
+                        .map(fe -> fe.getField() + ": " + fe.getDefaultMessage()).toArray());
+                return errorDetail;
+            }
+
+            if (exception instanceof ConstraintViolationException cve) {
+                errorDetail = ProblemDetail.forStatusAndDetail(HttpStatusCode.valueOf(400), "Constraint violation");
+                errorDetail.setProperty("errors", cve.getConstraintViolations().stream()
+                        .map(v -> v.getPropertyPath() + ": " + v.getMessage()).toArray());
+                return errorDetail;
+            }
+
+            if (exception instanceof DataIntegrityViolationException dive) {
+                errorDetail = ProblemDetail.forStatusAndDetail(HttpStatusCode.valueOf(409), "Data integrity violation");
+                errorDetail.setProperty("description", dive.getMostSpecificCause() != null ? dive.getMostSpecificCause().getMessage() : dive.getMessage());
+                return errorDetail;
+            }
+
+            if (exception instanceof IllegalStateException ise) {
+                errorDetail = ProblemDetail.forStatusAndDetail(HttpStatusCode.valueOf(400), ise.getMessage());
+                errorDetail.setProperty("description", "Bad request");
+                return errorDetail;
+            }
+
             errorDetail = ProblemDetail.forStatusAndDetail(HttpStatusCode.valueOf(500), exception.getMessage());
             errorDetail.setProperty("description", "Unknown internal server error.");
         }
