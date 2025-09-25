@@ -29,6 +29,10 @@ public class AuthenticationService {
     }
 
     public User signup(RegisterUserDto input) {
+        // Prevent duplicate email
+        userRepository.findByEmail(input.getEmail()).ifPresent(u -> {
+            throw new IllegalStateException("Email already registered");
+        });
         User user = new User();
         user.setFullName(input.getFullName());
         user.setEmail(input.getEmail());
