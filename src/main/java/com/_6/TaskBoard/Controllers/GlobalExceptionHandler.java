@@ -64,6 +64,16 @@ public class GlobalExceptionHandler {
                 return errorDetail;
             }
 
+            // Handle database unique constraint violations from Hibernate
+            if (exception instanceof org.hibernate.exception.ConstraintViolationException hcve) {
+                String msg = hcve.getSQLException() != null && hcve.getSQLException().getMessage() != null
+                        ? hcve.getSQLException().getMessage()
+                        : hcve.getMessage();
+                errorDetail = ProblemDetail.forStatusAndDetail(HttpStatusCode.valueOf(409), "Duplicate or constraint violation");
+                errorDetail.setProperty("description", msg);
+                return errorDetail;
+            }
+
             if (exception instanceof DataIntegrityViolationException dive) {
                 errorDetail = ProblemDetail.forStatusAndDetail(HttpStatusCode.valueOf(409), "Data integrity violation");
                 errorDetail.setProperty("description", dive.getMostSpecificCause() != null ? dive.getMostSpecificCause().getMessage() : dive.getMessage());
